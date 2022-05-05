@@ -49,7 +49,8 @@ async function run (){
     })
     // put method
     app.put('/inventory/:id', async(req, res)=>{
-        
+        const id = req.params.id;
+        const updatedStock = req.body;
     })
 
     }
