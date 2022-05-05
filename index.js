@@ -55,8 +55,12 @@ async function run (){
         const options = {upsert: true}
 
         const updateDoc ={
-            
-        }
+            $set:{
+                quantity: updatedStock.quantity,
+            },
+        };
+        const result = await serviceCollection.updateOne(filter,updateDoc, options);
+        res.send(result)
 
     })
 
