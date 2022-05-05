@@ -52,6 +52,12 @@ async function run (){
         const id = req.params.id;
         const updatedStock = req.body;
         const filter = {_id: ObjectId(id)}
+        const options = {upsert: true}
+
+        const updateDoc ={
+            
+        }
+
     })
 
     }
