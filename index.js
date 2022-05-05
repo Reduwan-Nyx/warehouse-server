@@ -51,6 +51,7 @@ async function run (){
     app.put('/inventory/:id', async(req, res)=>{
         const id = req.params.id;
         const updatedStock = req.body;
+        const filter = {_id: ObjectId(id)}
     })
 
     }
