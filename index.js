@@ -47,6 +47,10 @@ async function run (){
         const result = await serviceCollection.deleteOne(query)
         res.send(result);
     })
+    // put method
+    app.put('/inventory/:id', async(req, res)=>{
+        
+    })
 
     }
     finally{
