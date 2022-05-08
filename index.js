@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
@@ -8,6 +9,22 @@ const app = express()
 app.use(cors());
 app.use(express.json());
 
+
+function verifyJWT(req, res, next){
+    const authHeader = req.headers.authorization;
+    if(!authHeader){
+        return res.status(401).send({message: 'unauthorize access'})
+    }
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) =>{
+        if(err){
+            return res.status(403).send({message: 'Forbidden access'})
+        }
+        console.log('decoded', decoded);
+        req.decoded = decoded;
+        next()
+    }) 
+}
 
 
 
@@ -19,7 +36,19 @@ async function run (){
         await client.connect();
         const serviceCollection = client.db('halalHotel').collection('service')
         const oderCollection = client.db('halalHotel').collection('order')
+        // auth
+        app.post('/login', async(req, res)=>{
+            const user = req.body;
+            const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+                expiresIn: '1d'
+            });
+            res.send({accessToken})
+        })
 
+
+
+
+    // service api
        app.get('/inventory', async(req, res)=>{
              const query = {};
              const cursor = serviceCollection.find(query);
@@ -50,12 +79,18 @@ async function run (){
     })
 
     // order colllection api
-    app.get('/myitems', async(req, res)=>{
+    app.get('/order', verifyJWT, async(req, res)=>{
+        const decodedEmail = req.decoded.email;
         const email = req.query.email;
-        const query = {email: email};
+        if(email === decodedEmail){
+            const query = {email: email};
         const cursor = oderCollection.find(query)
         const orders = await cursor.toArray();
         res.send(orders);
+        }
+        else{
+            res.status(403).send({message: 'forbidden access'})
+        }
     })
    
     // order collection
